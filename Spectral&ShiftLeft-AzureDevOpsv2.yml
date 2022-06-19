@@ -5,23 +5,12 @@ trigger:
 pool:
   vmImage: ubuntu-latest
   build-image:
-
-
 steps:
   - task: CmdLine@2
     displayName: Checkout $(Build.SourceBranchName)
     inputs:
       script: 'git checkout $(Build.SourceBranchName)'
-  - script:
-      runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Build Container Image
-          run: |
-          git clone https://github.com/chkp-rolandop/demo-app
-          docker build -t rolandopcp/myapp ./demo-app
-          docker save -o myapp.tar rolandopcp/myapp
-  - script: |
+    - script: |
       echo "Installing Spectral..."
       curl -L 'https://get.spectralops.io/latest/x/sh?dns=$(SPECTRAL_DSN)' | sh
       echo .
