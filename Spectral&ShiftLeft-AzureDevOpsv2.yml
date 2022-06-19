@@ -12,10 +12,10 @@ steps:
       script: 'git checkout $(Build.SourceBranchName)'
   - script: |
       echo "Installing Spectral..."
-      curl -L 'https://get.spectralops.io/latest/x/sh?key=$(SPECTRAL_DSN)' | sh
+      curl -L 'https://get.spectralops.io/latest/x/sh?dns=$(SPECTRAL_DSN)' | sh
       echo .
       echo "Scanning with Spectral"
-      $HOME/.spectral/spectral scan --ok --dsn https://$(SPECTRAL_DSN)@get.spectralops.io --include-tags base,audit
+      $HOME/.spectral/spectral scan --ok --dsn https://$(SPECTRAL_DSN) --include-tags base,audit
     displayName: "Spectral Scan"
       
   - script: |
