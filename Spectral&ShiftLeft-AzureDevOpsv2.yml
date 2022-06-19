@@ -4,7 +4,7 @@ trigger:
 
 pool:
   vmImage: ubuntu-latest
-  build-image:
+
 steps:
   - task: CmdLine@2
     displayName: Checkout $(Build.SourceBranchName)
