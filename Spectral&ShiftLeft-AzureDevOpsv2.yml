@@ -1,0 +1,42 @@
+#Spectral & ShiftLeft Scan running on Azure DevOps pipeline
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: CmdLine@2
+    displayName: Checkout $(Build.SourceBranchName)
+    inputs:
+      script: 'git checkout $(Build.SourceBranchName)'
+  - script: |
+      echo "Installing Spectral..."
+      curl -L 'https://spk-c8bd91d952934034941436df84ace0ca@get.spectralops.io' | sh
+      echo .
+      echo "Scanning with Spectral"
+      $HOME/.spectral/spectral scan --ok --dsn $(SPECTRAL_DSN) --include-tags base,audit
+    displayName: "Spectral Scan"
+      
+  - script: |
+      echo $(SPECTRAL_DSN)
+      echo $(CHKP_CLOUDGUARD_ID)
+      echo $(CHKP_CLOUDGUARD_SECRET)
+    displayName: "Showing Variables"
+  
+  - script: |
+      echo "Installing ShiftLeft..."
+      curl -L 'https://shiftleft-prod-bucket.sg.iaas.checkpoint.com/blades/shiftleft/bin/linux/amd64/0.0.36/shiftleft' --output shiftleft
+      chmod +x shiftleft
+      cp shiftleft ~/bin
+      export CHKP_CLOUDGUARD_ID=$(68422c5c-c741-4711-acaa-a6bf107a74f6)
+      export CHKP_CLOUDGUARD_SECRET=$(d7bjpsw6qaj5wbfyhhgrjusp)
+      export SHIFTLEFT_REGION=$(SHIFTLEFT_REGION) #Line used only if CG Native tenant is outside the US region (EU1 in Europe)
+      echo "Scanning with ShiftLeft"
+      ./shiftleft code-scan -r -2003 -e df014d15-df0b-456a-8d37-13df1f6f6950 -s ./
+      echo . 
+    displayName: "ShiftLeft Scan"
+
+  - script: |
+      echo "Scan realizado com sucesso"
+    displayName: "Scan finished"
