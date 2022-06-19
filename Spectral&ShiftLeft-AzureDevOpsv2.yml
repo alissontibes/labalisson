@@ -29,8 +29,8 @@ steps:
       curl -L 'https://shiftleft-prod-bucket.sg.iaas.checkpoint.com/blades/shiftleft/bin/linux/amd64/0.0.36/shiftleft' --output shiftleft
       chmod +x shiftleft
       cp shiftleft ~/bin
-      export CHKP_CLOUDGUARD_ID=$(68422c5c-c741-4711-acaa-a6bf107a74f6)
-      export CHKP_CLOUDGUARD_SECRET=$(d7bjpsw6qaj5wbfyhhgrjusp)
+      export CHKP_CLOUDGUARD_ID=$(CHKP_CLOUDGUARD_ID)
+      export CHKP_CLOUDGUARD_SECRET=$(CHKP_CLOUDGUARD_SECRET)
       export SHIFTLEFT_REGION=$(SHIFTLEFT_REGION) #Line used only if CG Native tenant is outside the US region (EU1 in Europe)
       echo "Scanning with ShiftLeft"
       ./shiftleft code-scan -r -2003 -e df014d15-df0b-456a-8d37-13df1f6f6950 -s ./
