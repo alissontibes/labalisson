@@ -1,4 +1,4 @@
-#Spectral & ShiftLeft Scan running on Azure DevOps pipeline
+#Spectral & ShiftLeft Scan running on Azure DevOps pipeline2
 trigger:
 - main
 
