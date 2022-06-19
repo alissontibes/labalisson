@@ -8,7 +8,7 @@ steps:
     displayName: Checkout $(Build.SourceBranchName)
     inputs:
       script: 'git checkout $(Build.SourceBranchName)'
-    - script: 
+    - script: |
       echo "Installing Spectral..."
       curl -L 'https://get.spectralops.io/latest/x/sh?dns=$(SPECTRAL_DSN)' | sh
       echo .
