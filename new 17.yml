@@ -1,0 +1,100 @@
+upstream juiceshop_host {
+  server juice-shop:3000;
+}
+upstream bwaap_host {
+  server bwaap-vuln:80;
+}
+upstream dvwa-docker {
+  server dvwa-docker:80;
+}
+
+server {
+  server_name juiceshop.cloudguard.test;
+  listen 80;
+  location / {
+    proxy_pass http://juiceshop_host/;
+  }
+  location /socket.io {
+    proxy_pass http://juiceshop_host/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+    proxy_set_header Host $host;
+  }
+}
+
+server {
+  server_name bwaap.cloudguard.test;
+  listen 80;
+  location / {
+    proxy_pass http://bwaap_host/;
+  }
+}
+
+server {
+  server_name dvwa.cloudguard.test;
+  listen 80;
+  location / {
+    proxy_pass http://dvwa-docker/;
+  }
+}
+
+server {
+  listen 80 default_server;
+  server_name _;
+  return 404;
+}
+
+#Spectral & ShiftLeft Scan running on Azure DevOps pipeline
+trigger:
+- main
+   
+
+
+pool:
+  vmImage: ubuntu-latest
+
+resources:
+    containers:
+    container: tibessec
+    image: ubuntu:18.04
+steps:
+- script: echo "I can run inside the container (it starts by default)"
+    target:
+    container: tibessec
+
+steps:
+  - task: CmdLine@2
+    displayName: Checkout $(Build.SourceBranchName)
+    inputs:
+      script: 'git checkout $(Build.SourceBranchName)'
+  - script: |
+      echo "Installing Spectral..."
+      curl -L 'https://get.spectralops.io/latest/x/sh?dns=$(SPECTRAL_DSN)' | sh
+      echo .
+      echo "Scanning with Spectral"
+      $HOME/.spectral/spectral scan --ok --dsn https://$(SPECTRAL_DSN) --include-tags base,audit
+    displayName: "Spectral Scan"
+      
+  - script: |
+      echo $(SPECTRAL_DSN)
+      echo $(CHKP_CLOUDGUARD_ID)
+      echo $(CHKP_CLOUDGUARD_SECRET)
+    displayName: "Showing Variables"
+  
+  - script: |
+      echo "Installing ShiftLeft..."
+      curl -L 'https://shiftleft-prod-bucket.sg.iaas.checkpoint.com/blades/shiftleft/bin/linux/amd64/0.0.36/shiftleft' --output shiftleft
+      chmod +x shiftleft
+      cp shiftleft ~/bin
+      export CHKP_CLOUDGUARD_ID=$(CHKP_CLOUDGUARD_ID)
+      export CHKP_CLOUDGUARD_SECRET=$(CHKP_CLOUDGUARD_SECRET)
+      export SHIFTLEFT_REGION=$(SHIFTLEFT_REGION) #Line used only if CG Native tenant is outside the US region (EU1 in Europe)
+      echo "Scanning with ShiftLeft"
+      ./shiftleft code-scan -r -2003 -e df014d15-df0b-456a-8d37-13df1f6f6950 -s ./
+      echo . 
+    displayName: "ShiftLeft Scan"
+
+  - script: |
+      echo "Scan realizado com sucesso"
+    displayName: "Scan finished"
