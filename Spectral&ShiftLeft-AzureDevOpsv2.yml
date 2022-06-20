@@ -7,16 +7,16 @@ pool:
   vmImage: ubuntu-latest
 resources:
     containers:
-  - container: builder
+  - container: tibessec
     image: ubuntu:18.04
 steps:
 - script: echo "I can run inside the container (it starts by default)"
   target:
-    container: builder
+    container: tibessec
 - task: Docker@2
   inputs:
     command: stop
-    container: builder
+    container: tibessec
 # any task beyond this point would not be able to target the builder container
 # because it's been stopped
 
