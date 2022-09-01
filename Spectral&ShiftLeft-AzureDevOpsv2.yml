@@ -2,10 +2,14 @@
 trigger:
 - main
 
- 
+variables:
+    name: one
+    value: initialValue 
+    
+
+
 pool:
   vmImage: ubuntu-latest
-
 
 steps:
   - task: CmdLine@2
@@ -35,7 +39,8 @@ steps:
       export CHKP_CLOUDGUARD_SECRET=$(CHKP_CLOUDGUARD_SECRET)
       export SHIFTLEFT_REGION=$(SHIFTLEFT_REGION) #Line used only if CG Native tenant is outside the US region (EU1 in Europe)
       echo "Scanning with ShiftLeft"
-      ./shiftleft code-scan -r -2003 -e df014d15-df0b-456a-8d37-13df1f6f6950 -s ./
+      ./shiftleft code-scan -r -2003 -s ./ -po
+      ./shiftleft iac-assessment -i terraform -p terraform-template -r -64 -e df014d15-df0b-456a-8d37-13df1f6f6950
       echo . 
     displayName: "ShiftLeft Scan"
 
